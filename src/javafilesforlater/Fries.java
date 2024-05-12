@@ -1,13 +1,14 @@
-public class Burrito extends FoodItem {
+package javafilesforlater;
+public class Fries extends FoodItem{
 
-    public Burrito(double price)
+    public Fries(double price)
     {
         this.Price = price;
     }
     public double Price;
 
     public static int getPreparationTime(int quantity) {
-        return (int) (Math.ceil(quantity/2.0) * 9);
+        return (int)Math.ceil(quantity/5.0) * 8;
     }
 
     public void setPrice(double price)

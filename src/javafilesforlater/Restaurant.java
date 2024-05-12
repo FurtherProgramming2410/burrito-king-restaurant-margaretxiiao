@@ -1,3 +1,4 @@
+package javafilesforlater;
 
 import java.util.Scanner;
 
@@ -436,6 +437,7 @@ public class Restaurant {
                         }
                     }
                     break;
+                    
                 case "3":
                     soda.setName("soda");
 

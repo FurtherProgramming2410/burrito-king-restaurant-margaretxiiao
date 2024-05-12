@@ -1,3 +1,4 @@
+package javafilesforlater;
 public class Soda extends FoodItem{
 
     public Soda(double price)
