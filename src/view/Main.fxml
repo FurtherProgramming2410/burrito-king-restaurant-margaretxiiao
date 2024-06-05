@@ -14,16 +14,16 @@
 
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="703.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="LogInController">
    <children>
-      <AnchorPane prefHeight="455.0" prefWidth="267.0" style="-fx-background-color: FFA28E;">
+      <AnchorPane prefHeight="455.0" prefWidth="299.0" style="-fx-background-color: FFA28E;">
          <children>
             <ImageView fitHeight="178.0" fitWidth="177.0" layoutX="55.0" layoutY="195.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@images/burritocat.png" />
+                  <Image url="@../images/burritocat.png" />
                </image>
             </ImageView>
             <ImageView fitHeight="137.0" fitWidth="299.0" layoutY="58.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@images/BurritoKing.gif" />
+                  <Image url="@../images/BurritoKing.gif" />
                </image>
             </ImageView>
          </children>
@@ -50,12 +50,12 @@
                <font>
                   <Font name="Corbel Light" size="18.0" />
                </font></PasswordField>
-            <Button fx:id="button_signin" layoutX="134.0" layoutY="305.0" mnemonicParsing="false" onAction="#handleSignInButtonAction" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Sign In" textAlignment="CENTER">
+            <Button fx:id="button_signin" layoutX="134.0" layoutY="305.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Sign In" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button fx:id="button_signup" layoutX="198.0" layoutY="375.0" mnemonicParsing="false" onAction="#handleSignUpButtonAction" prefHeight="23.0" prefWidth="117.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Sign Up!">
+            <Button fx:id="button_signup" layoutX="198.0" layoutY="375.0" mnemonicParsing="false" onAction="#initialize" prefHeight="23.0" prefWidth="117.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Sign Up!">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
