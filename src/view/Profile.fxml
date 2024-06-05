@@ -24,7 +24,7 @@
                         <Font name="Corbel Bold" size="18.0" />
                     </font>
                 </Button>
-                <Button fx:id="button_neworder" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
+                <Button fx:id="button_neworder" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrderButton" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
                     <font>
                         <Font name="Corbel Bold" size="18.0" />
                     </font>
@@ -93,7 +93,7 @@
                         <Font size="18.0" />
                     </font>
                 </TextField>
-				<PasswordField fx:id="field_password" layoutX="318.0" layoutY="413.0" prefHeight="24.0" prefWidth="150.0" editable="true" />
+				<PasswordField fx:id="field_password" editable="true" layoutX="318.0" layoutY="413.0" prefHeight="24.0" prefWidth="150.0" />
                 <Text fx:id="profile_lastname" layoutX="329.0" layoutY="379.0" strokeType="OUTSIDE" strokeWidth="0.0" text="lastname" wrappingWidth="101.677734375">
                     <font>
                         <Font size="18.0" />
