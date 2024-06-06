@@ -1,3 +1,5 @@
+package controller;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -196,7 +198,6 @@ public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
         }
     }
 
-    @Override
     public void onOrderStored(int orderId) {
         showInfoAlert("Order Created", "Your order number is: " + orderId);
         try {

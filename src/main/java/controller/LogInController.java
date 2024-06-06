@@ -1,3 +1,5 @@
+package controller;
+
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;

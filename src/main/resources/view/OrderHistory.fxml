@@ -6,10 +6,9 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.text.Font?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="795.0" prefWidth="1159.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="LoggedInController">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="795.0" prefWidth="1159.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.OrderHistoryController">
    <children>
       <AnchorPane prefHeight="795.0" prefWidth="216.0" style="-fx-background-color: FFA28E;">
          <children>
@@ -23,7 +22,7 @@
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button fx:id="button_neworder" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
+            <Button fx:id="button_editprofile" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -38,12 +37,12 @@
                   <Image url="@../images/burritocat.png" />
                </image>
             </ImageView>
-            <Button fx:id="button_orderhistory" layoutX="30.0" layoutY="373.0" mnemonicParsing="false" onAction="#handleViewOrders" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Order History" textAlignment="CENTER">
+            <Button layoutX="30.0" layoutY="373.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FF7E62; -fx-cursor: hand;" text="Order History" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button layoutX="30.0" layoutY="657.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FF7E62; -fx-cursor: hand;" text="Home" textAlignment="CENTER">
+            <Button fx:id="button_home" layoutX="30.0" layoutY="657.0" mnemonicParsing="false" onAction="#handleHome" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Home" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -52,19 +51,7 @@
       </AnchorPane>
       <AnchorPane prefHeight="795.0" prefWidth="953.0">
          <children>
-            <Label fx:id="label_welcome" layoutX="57.0" layoutY="36.0" prefHeight="49.0" prefWidth="611.0" text="Welcome">
-               <font>
-                  <Font name="Corbel Bold" size="26.0" />
-               </font>
-            </Label>
-            <TilePane layoutX="490.0" layoutY="85.0" prefHeight="275.0" prefWidth="378.0" />
-            <TilePane layoutX="486.0" layoutY="452.0" prefHeight="281.0" prefWidth="387.0" />
-            <Label fx:id="label_welcome1" layoutX="490.0" layoutY="36.0" prefHeight="36.0" prefWidth="178.0" text="Active Orders">
-               <font>
-                  <Font name="Corbel Bold" size="26.0" />
-               </font>
-            </Label>
-            <Label fx:id="label_welcome11" layoutX="463.0" layoutY="409.0" prefHeight="36.0" prefWidth="194.0" text="Order Summary">
+            <Label fx:id="label_allorders" layoutX="75.0" layoutY="59.0" prefHeight="36.0" prefWidth="178.0" text="All Orders">
                <font>
                   <Font name="Corbel Bold" size="26.0" />
                </font>
