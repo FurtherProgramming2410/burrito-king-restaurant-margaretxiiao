@@ -240,6 +240,8 @@ public class NewOrderController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+    
+    // nav methods
 
     @FXML
     private void handleLogout(ActionEvent event) {

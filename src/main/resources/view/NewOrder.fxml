@@ -54,12 +54,12 @@
       </AnchorPane>
       <AnchorPane prefHeight="795.0" prefWidth="953.0">
          <children>
-            <Label layoutX="391.0" layoutY="37.0" prefHeight="36.0" prefWidth="178.0" text="New Order">
+            <Label layoutX="409.0" layoutY="31.0" prefHeight="36.0" prefWidth="130.0" text="New Order">
                <font>
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
-            <HBox layoutX="152.0" layoutY="101.0" prefHeight="172.0" prefWidth="645.0">
+            <HBox layoutX="152.0" layoutY="84.0" prefHeight="172.0" prefWidth="645.0">
                <children>
                   <HBox prefHeight="215.0" prefWidth="142.0" style="-fx-border-width: 5; -fx-border-color: ffdf7c;">
                      <children>
@@ -92,17 +92,17 @@
                   </HBox>
                </children>
             </HBox>
-            <Button layoutX="157.0" layoutY="289.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Burrito" textAlignment="CENTER">
+            <Button layoutX="160.0" layoutY="271.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Burrito" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button layoutX="320.0" layoutY="289.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Fries" textAlignment="CENTER">
+            <Button layoutX="320.0" layoutY="271.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Fries" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button layoutX="480.0" layoutY="289.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Soda" textAlignment="CENTER">
+            <Button layoutX="480.0" layoutY="271.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Soda" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -112,25 +112,25 @@
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
-            <TextField fx:id="input_burrito_qty" layoutX="242.0" layoutY="349.0" prefHeight="25.0" prefWidth="55.0" text="0" />
-            <Label layoutX="164.0" layoutY="350.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
+            <TextField fx:id="input_burrito_qty" layoutX="246.0" layoutY="326.0" prefHeight="25.0" prefWidth="55.0" text="0" />
+            <Label layoutX="161.0" layoutY="327.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="input_fries_qty" layoutX="405.0" layoutY="349.0" prefHeight="25.0" prefWidth="55.0" text="0" />
-            <Label layoutX="322.0" layoutY="351.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
+            <TextField fx:id="input_fries_qty" layoutX="404.0" layoutY="326.0" prefHeight="25.0" prefWidth="55.0" text="0" />
+            <Label layoutX="321.0" layoutY="328.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Label>
-            <TextField fx:id="input_soda_qty" layoutX="569.0" layoutY="350.0" prefHeight="25.0" prefWidth="55.0" text="0" />
-            <Label layoutX="488.0" layoutY="351.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
+            <TextField fx:id="input_soda_qty" layoutX="571.0" layoutY="325.0" prefHeight="25.0" prefWidth="55.0" text="0" />
+            <Label layoutX="490.0" layoutY="326.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Label>
-            <Button fx:id="button_confirm_qtys" layoutX="392.0" layoutY="398.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Confirm" textAlignment="CENTER">
+            <Button fx:id="button_confirm_qtys" layoutX="394.0" layoutY="372.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Confirm" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -155,7 +155,7 @@
                   <Font size="18.0" />
                </font>
             </Text>
-            <Button fx:id="button_placeorder" layoutX="723.0" layoutY="705.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Place Order" textAlignment="CENTER">
+            <Button fx:id="button_placeorder" layoutX="657.0" layoutY="673.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Place Order" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -225,13 +225,13 @@
                   <Font size="18.0" />
                </font>
             </Text>
-            <Button fx:id="label_meal" layoutX="638.0" layoutY="289.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Meal" textAlignment="CENTER">
+            <Button fx:id="label_meal" layoutX="638.0" layoutY="271.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Meal" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <TextField fx:id="input_meal_qty" layoutX="729.0" layoutY="351.0" prefHeight="25.0" prefWidth="55.0" text="0" />
-            <Label fx:id="label_meal_qty" layoutX="651.0" layoutY="352.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
+            <TextField fx:id="input_meal_qty" layoutX="731.0" layoutY="326.0" prefHeight="25.0" prefWidth="55.0" text="0" />
+            <Label fx:id="label_meal_qty" layoutX="653.0" layoutY="327.0" prefHeight="22.0" prefWidth="72.0" text="quantity:">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -264,7 +264,7 @@
                   <Font size="18.0" />
                </font>
             </Text>
-            <Text fx:id="text_totalpreparationtime" layoutX="339.0" layoutY="710.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 minutes" wrappingWidth="102.3701171875">
+            <Text fx:id="text_totalpreparationtime" layoutX="338.0" layoutY="711.0" strokeType="OUTSIDE" strokeWidth="0.0" text="0 minutes" wrappingWidth="139.640625">
                <font>
                   <Font size="18.0" />
                </font>

@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 public class SceneChanger {
 
-    // Method to change scene using ActionEvent
+    // change scene using ActionEvent
     public static void changeScene(ActionEvent event, String fxmlFile, String title, double width, double height) {
         try {
             Parent root = FXMLLoader.load(SceneChanger.class.getResource(fxmlFile));
@@ -25,7 +25,7 @@ public class SceneChanger {
         }
     }
 
-    // Overloaded method to change scene using Stage directly
+    // overloaded method to change scene using Stage directly
     public static void changeScene(Stage stage, String fxmlFile, String title, double width, double height) {
         try {
             Parent root = FXMLLoader.load(SceneChanger.class.getResource(fxmlFile));
@@ -37,7 +37,7 @@ public class SceneChanger {
         }
     }
 
-    // Method to change scene with controller customization
+    // change scene with controller customization
     public static <T> void changeScene(ActionEvent event, String fxmlFile, String title, double width, double height, Consumer<T> controllerConsumer) {
         try {
             FXMLLoader loader = new FXMLLoader(SceneChanger.class.getResource(fxmlFile));
