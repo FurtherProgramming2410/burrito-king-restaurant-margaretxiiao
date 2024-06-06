@@ -39,7 +39,7 @@
                         <Image url="@../images/burritocat.png" />
                     </image>
                 </ImageView>
-                <Button fx:id="button_orderhistory" layoutX="30.0" layoutY="373.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Order History" textAlignment="CENTER">
+                <Button fx:id="button_vieworders" layoutX="30.0" layoutY="373.0" mnemonicParsing="false" onAction="#handleViewOrders" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Order History" textAlignment="CENTER">
                     <font>
                         <Font name="Corbel Bold" size="18.0" />
                     </font>

@@ -1,4 +1,4 @@
-package javafilesforlater;
+package restaurant;
 public abstract class FoodItem {
 
     public String Name;

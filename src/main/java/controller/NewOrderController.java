@@ -1,38 +1,41 @@
 package controller;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDate;
-
-import javafilesforlater.Burrito;
-import javafilesforlater.Fries;
+import dao.OrderDao;
+import dao.OrderDaoImpl;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
+import model.Order;
+import model.User;
+import restaurant.Burrito;
+import restaurant.Fries;
+import utils.SceneChanger;
+import utils.UserSession;
 
-public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
+import java.sql.SQLException;
+import java.time.LocalDate;
 
-    // buttons
+public class NewOrderController {
+
+	// buttons
+	
     @FXML
     private Button button_logout;
     @FXML
     private Button button_home;
     @FXML
+    private Button button_vieworders;
+    @FXML
     private Button button_placeorder;
     @FXML
     private Button button_confirm_qtys;
 
-    // quantities
+    // quantity fields
     @FXML
     private TextField input_burrito_qty;
     @FXML
@@ -42,34 +45,29 @@ public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
     @FXML
     private TextField input_meal_qty;
 
-    // Order summary texts
+    // labels
+    
     @FXML
     private Text burrito_qty;
     @FXML
     private Text fries_qty;
     @FXML
     private Text soda_qty;
-    
-    // these are for only vip users to view later
-    @FXML
-    private Button label_meal;
-    @FXML
-    private Label label_meal_qty;
-    
     @FXML
     private Text meal_qty;
     @FXML
     private Text text_totalprice;
 
-    // payment inputs
+    
+    // card number inputs
     @FXML
     private TextField input_cardnumber;
     @FXML
     private TextField input_cardcvv;
     @FXML
     private DatePicker input_cardexpiry;
-
-    // Item specific subtotals before adding to the total price
+    
+    // order details text display 
     @FXML
     private Text text_burritocheckoutprice;
     @FXML
@@ -78,32 +76,38 @@ public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
     private Text text_sodacheckoutprice;
     @FXML
     private Text text_checkoutmealprice;
-
-    // Preparation time text
     @FXML
     private Text text_totalpreparationtime;
+    
+    // labels for vip meals view
+    @FXML
+    private Button label_meal;
+    @FXML
+    private Label label_meal_qty;
 
-    // Constants for food prices
     private final double burritoPrice = 7.0;
     private final double friesPrice = 4.0;
     private final double sodaPrice = 2.5;
     private final double mealPrice = 10.50;
 
-    // VIP status
     private boolean isVipUser;
+    private final OrderDao orderDao = new OrderDaoImpl();
 
     @FXML
     public void initialize() {
         button_confirm_qtys.setOnAction(event -> handleConfirmQuantities());
         button_placeorder.setOnAction(event -> {
             try {
-                handlePlaceOrder();
+                handlePlaceOrder(event);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         });
 
-        isVipUser = checkIfUserIsVip();
+        User loggedInUser = UserSession.getLoggedInUser();
+        if (loggedInUser != null) {
+            isVipUser = loggedInUser.isVip();
+        }
 
         if (!isVipUser) {
             input_meal_qty.setVisible(false);
@@ -113,8 +117,7 @@ public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
             text_checkoutmealprice.setVisible(false);
         }
     }
-    
-    // confirm quantities before placing order
+
     @FXML
     private void handleConfirmQuantities() {
         try {
@@ -141,15 +144,85 @@ public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
             double total = burritoTotal + friesTotal + sodaTotal + (isVipUser ? mealTotal : 0);
             text_totalprice.setText(String.format("$%.2f", total));
 
-            int preparationTime = Burrito.getPreparationTime(burritoQty) + Fries.getPreparationTime(friesQty);
+            int preparationTime = calculatePreparationTime(burritoQty, friesQty, sodaQty);
             text_totalpreparationtime.setText(String.format("%d minutes", preparationTime));
         } catch (NumberFormatException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Invalid Input");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter valid numbers for all items.");
-            alert.showAndWait();
+            showErrorAlert("Invalid Quantities", "Please enter valid numbers for all items.");
         }
+    }
+
+    @FXML
+    private void handlePlaceOrder(ActionEvent event) throws SQLException {
+        String cardNumber = input_cardnumber.getText();
+        String cardCvv = input_cardcvv.getText();
+        LocalDate cardExpiry = input_cardexpiry.getValue();
+
+        String validationError = validateCreditCard(cardNumber, cardCvv, cardExpiry);
+        if (validationError != null) {
+            showErrorAlert("Payment Error", validationError);
+            return;
+        }
+
+        int burritoQty = Integer.parseInt(input_burrito_qty.getText());
+        int friesQty = Integer.parseInt(input_fries_qty.getText());
+        int sodaQty = Integer.parseInt(input_soda_qty.getText());
+        int mealQty = isVipUser ? Integer.parseInt(input_meal_qty.getText()) : 0;
+
+        double totalPrice = calculateTotalPrice(burritoQty, friesQty, sodaQty, mealQty);
+        int preparationTime = calculatePreparationTime(burritoQty, friesQty, sodaQty);
+
+        User loggedInUser = UserSession.getLoggedInUser();
+        int userId = loggedInUser != null ? loggedInUser.getUserId() : -1;
+
+        if (userId == -1) {
+            showErrorAlert("Order Error", "User information is missing. Please log in again.");
+            return;
+        }
+
+        Order order = new Order(userId, burritoQty, friesQty, sodaQty, mealQty, totalPrice, preparationTime);
+
+        // Store order and get the order_id
+        int orderId = orderDao.storeOrder(order);
+        if (orderId > 0) { 
+            showInfoAlert("Order Placed", "Your order has been placed successfully!\nOrder Number: " + orderId);
+            // Redirect to LoggedIn.fxml
+            SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Welcome", 1200, 800, controller -> {
+                if (controller instanceof LoggedInController) {
+                    LoggedInController loggedInController = (LoggedInController) controller;
+                    User currentUser = UserSession.getLoggedInUser();
+                    if (currentUser != null) {
+                        loggedInController.setUserInformation(currentUser.getFirstname(), currentUser.getLastname());
+                    }
+                }
+            });
+        } else {
+            showErrorAlert("Order Error", "Failed to place the order. Please try again later.");
+        }
+    }
+
+    private double calculateTotalPrice(int burritoQty, int friesQty, int sodaQty, int mealQty) {
+        return (burritoQty * burritoPrice) + (friesQty * friesPrice) + (sodaQty * sodaPrice) + (mealQty * mealPrice);
+    }
+
+    private int calculatePreparationTime(int burritoQty, int friesQty, int sodaQty) {
+        int burritoPrepTime = Burrito.getPreparationTime(burritoQty);
+        int friesPrepTime = Fries.getPreparationTime(friesQty);
+
+
+        return burritoPrepTime + friesPrepTime;
+    }
+
+    private String validateCreditCard(String cardNumber, String cvv, LocalDate cardExpiry) {
+        if (cardNumber.length() != 16) {
+            return "Invalid card number. Please enter a 16-digit card number.";
+        }
+        if (cardExpiry == null || cardExpiry.isBefore(LocalDate.now())) {
+            return "Card is expired. Please use a valid card.";
+        }
+        if (cvv.length() != 3) {
+            return "Invalid CVV. Please enter a 3-digit CVV.";
+        }
+        return null;
     }
 
     private void showErrorAlert(String title, String message) {
@@ -169,111 +242,24 @@ public class NewOrderController implements DatabaseUtils.OrderStoredCallback {
     }
 
     @FXML
-    private void handlePlaceOrder() throws SQLException {
-        String cardNumber = input_cardnumber.getText();
-        String cardCvv = input_cardcvv.getText();
-        LocalDate cardExpiry = input_cardexpiry.getValue();
-
-        String validationError = validateCreditCard(cardNumber, cardCvv, cardExpiry);
-        if (validationError != null) {
-            showErrorAlert(validationError, validationError);
-            return;
-        }
-
-        int burritoQty = Integer.parseInt(input_burrito_qty.getText());
-        int friesQty = Integer.parseInt(input_fries_qty.getText());
-        int sodaQty = Integer.parseInt(input_soda_qty.getText());
-        int mealQty = isVipUser ? Integer.parseInt(input_meal_qty.getText()) : 0;
-
-        double totalPrice = calculateTotalPrice(burritoQty, friesQty, sodaQty, mealQty);
-        int preparationTime = calculatePreparationTime(burritoQty, friesQty);
-
-        int userId = getCurrentUserId();
-
-        boolean stored = DatabaseUtils.storeOrder(userId, burritoQty, friesQty, sodaQty, mealQty, totalPrice, preparationTime, this);
-        if (stored) {
-            showInfoAlert("Order Placed", "Your order has been placed successfully!");
-        } else {
-            showInfoAlert("Order Error", "Failed to place the order. Please try again later.");
-        }
-    }
-
-    public void onOrderStored(int orderId) {
-        showInfoAlert("Order Created", "Your order number is: " + orderId);
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoggedIn.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) button_placeorder.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private double calculateTotalPrice(int burritoQty, int friesQty, int sodaQty, int mealQty) {
-        return (burritoQty * burritoPrice) + (friesQty * friesPrice) + (sodaQty * sodaPrice) + (mealQty * mealPrice);
-    }
-
-    private int calculatePreparationTime(int burritoQty, int friesQty) {
-        return Burrito.getPreparationTime(burritoQty) + Fries.getPreparationTime(friesQty);
-    }
-
-    private int getCurrentUserId() {
-        return 1; 
-    }
-
-    private String validateCreditCard(String cardNumber, String cvv, LocalDate cardExpiry) {
-        if (cardNumber.length() != 16) {
-            return "Invalid card number. Please enter a 16-digit card number.";
-        }
-        if (cardExpiry == null || cardExpiry.isBefore(LocalDate.now())) {
-            return "Card is expired. Please use a valid card.";
-        }
-        if (cvv.length() != 3) {
-            return "Invalid CVV. Please enter a 3-digit CVV.";
-        }
-        return null;
-    }
-
-    // vip for later
-    private boolean checkIfUserIsVip() {
-        return false;
-
-    }
-
-    @FXML
     private void handleLogout(ActionEvent event) {
-        Stage stage = (Stage) button_logout.getScene().getWindow();
-        stage.close();
+        UserSession.clearSession();
+        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
     }
 
-    // view home
     @FXML
     private void handleHome(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/LoggedIn.fxml"));
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) button_home.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Home", 1200, 800);
     }
 
-    // view profile
     @FXML
     private void handleViewProfile(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/profile.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SceneChanger.changeScene(event, "/view/Profile.fxml", "Profile", 1200, 800);
     }
+    
+    @FXML
+    private void handleViewOrders(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/OrderHistory.fxml", "Order History", 1200, 800);
+    }
+    
 }

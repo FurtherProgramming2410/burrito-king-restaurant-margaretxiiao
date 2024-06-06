@@ -13,6 +13,8 @@ public class UserDaoImpl implements UserDao {
     public UserDaoImpl() {
     }
 
+    // make the table
+    
     @Override
     public void setup() throws SQLException {
         try (Connection connection = Database.getConnection();
@@ -32,13 +34,21 @@ public class UserDaoImpl implements UserDao {
             stmt.setString(2, password);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new User(rs.getString("username"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("password"));
+                    return new User(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),   
+                        rs.getString("firstname"),  
+                        rs.getString("lastname"),  
+                        rs.getString("password"),   
+                        rs.getBoolean("isVIP")      
+                    );
                 }
                 return null;
             }
         }
     }
 
+    // create user in database
     @Override
     public boolean createUser(String username, String firstname, String lastname, String password) throws SQLException {
         String sql = "INSERT INTO " + TABLE_NAME + " (username, firstname, lastname, password) VALUES (?, ?, ?, ?)";
@@ -52,6 +62,8 @@ public class UserDaoImpl implements UserDao {
             return rowsInserted > 0;
         }
     }
+    
+    // update user in database
 
     @Override
     public boolean updateUser(String username, String updatedFirstname, String updatedLastname, String updatedPassword) throws SQLException {
@@ -66,7 +78,8 @@ public class UserDaoImpl implements UserDao {
             return rowsUpdated > 0;
         }
     }
-
+    
+    // get the user
     @Override
     public User getUserByUsername(String username) throws SQLException {
         String sql = "SELECT * FROM " + TABLE_NAME + " WHERE username = ?";
@@ -75,7 +88,14 @@ public class UserDaoImpl implements UserDao {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new User(rs.getString("username"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("password"));
+                    return new User(
+                        rs.getInt("user_id"),    
+                        rs.getString("username"), 
+                        rs.getString("firstname"),  
+                        rs.getString("lastname"),   
+                        rs.getString("password"),   
+                        rs.getBoolean("isVIP")      
+                    );
                 }
                 return null;
             }

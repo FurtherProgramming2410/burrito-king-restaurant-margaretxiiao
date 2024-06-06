@@ -1,22 +1,40 @@
 package model;
 
 public class User {
+    private int userId;
     private String username;
     private String firstname;
     private String lastname;
     private String password;
+    private boolean isVip;
 
-    public User() {
-    }
-
-    public User(String username, String firstname, String lastname, String password) {
+    // Full constructor
+    public User(int userId, String username, String firstname, String lastname, String password, boolean isVip) {
+        this.userId = userId;
         this.username = username;
         this.firstname = firstname;
         this.lastname = lastname;
         this.password = password;
+        this.isVip = isVip;
     }
 
-    // Getters and Setters
+    // Constructor without userId (useful for new user creation where userId is auto-generated)
+    public User(String username, String firstname, String lastname, String password, boolean isVip) {
+        this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.password = password;
+        this.isVip = isVip;
+    }
+
+    // Getters and setters
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
     public String getUsername() {
         return username;
@@ -48,5 +66,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isVip() {
+        return isVip;
+    }
+
+    public void setVip(boolean isVip) {
+        this.isVip = isVip;
     }
 }

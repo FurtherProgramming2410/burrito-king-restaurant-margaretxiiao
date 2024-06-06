@@ -1,4 +1,4 @@
-package javafilesforlater;
+package restaurant;
 public class Burrito extends FoodItem {
 
     public Burrito(double price)

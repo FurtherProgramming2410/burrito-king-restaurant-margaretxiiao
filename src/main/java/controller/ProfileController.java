@@ -1,4 +1,7 @@
 package controller;
+
+import dao.UserDao;
+import dao.UserDaoImpl;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -6,15 +9,15 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import java.io.IOException;
+import model.User;
+import utils.SceneChanger;
+import utils.UserSession;
+
+import java.sql.SQLException;
 
 public class ProfileController {
 
+	// texts to display user info in profile
     @FXML
     private Text profile_firstname;
 
@@ -23,10 +26,11 @@ public class ProfileController {
 
     @FXML
     private Text profile_username;
-    
+
     @FXML
     private Text profile_password;
-
+    
+    // update fields change
     @FXML
     private TextField field_firstname;
 
@@ -34,155 +38,144 @@ public class ProfileController {
     private TextField field_lastname;
 
     @FXML
-    private PasswordField field_password;
+    private PasswordField field_password; 
+    
+    // editing updating buttons
     
     @FXML
     private Button button_editprofile;
-    
+
     @FXML
     private Button button_saveprofile;
 
+    
+    // nav buttons
+    
     @FXML
     private Button button_logout;
 
     @FXML
     private Button button_home;
+    
+    @FXML
+    private Button button_vieworders;
 
-    // initialize the profile information
+    private final UserDao userDao = new UserDaoImpl();
+
+    @FXML
     public void initialize() {
-
-        String username = "xmx"; 
-        String[] userInfo = DatabaseUtils.getUserInfo(username);
-        if (userInfo != null) {
-            // Display profile info
-            profile_firstname.setText(userInfo[0]);
-            profile_lastname.setText(userInfo[1]);
-            profile_username.setText(username);
-        } else {
-            System.out.println("User not found in the database!");
-        }
-        
-        // Hide editable fields initially
-        field_firstname.setVisible(false);
-        field_lastname.setVisible(false);
-        field_password.setVisible(false);
-        
-        button_saveprofile.setVisible(false);
+        loadUserProfile();
     }
 
-    // editing the profile
+    private void loadUserProfile() {
+        User user = UserSession.getLoggedInUser();
+        if (user != null) {
+            profile_firstname.setText(user.getFirstname());
+            profile_lastname.setText(user.getLastname());
+            profile_username.setText(user.getUsername());
+            profile_password.setText("********");
+            
+            // hide the editable fields initially
+            field_firstname.setVisible(false);
+            field_lastname.setVisible(false);
+            field_password.setVisible(false);
+            button_saveprofile.setVisible(false);
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "User not found.");
+        }
+    }
+
     @FXML
     private void handleEditProfile() {
-        // Enable text fields for editing
         field_firstname.setVisible(true);
-        field_firstname.setEditable(true);
-        
         field_lastname.setVisible(true);
-        field_lastname.setEditable(true);
-        
         field_password.setVisible(true);
-        field_password.setEditable(true);
 
-        // Setting the text of text fields to the current profile info
         field_firstname.setText(profile_firstname.getText());
         field_lastname.setText(profile_lastname.getText());
+        field_password.setText(""); 
 
-        field_password.setText("");
-        
         profile_firstname.setVisible(false);
         profile_lastname.setVisible(false);
         profile_password.setVisible(false);
-        
+
         button_editprofile.setVisible(false);
-        
         button_saveprofile.setVisible(true);
     }
 
     @FXML
     private void handleSaveProfile() {
-        // Get updated profile information from text fields
         String updatedFirstname = field_firstname.getText();
         String updatedLastname = field_lastname.getText();
         String updatedPassword = field_password.getText();
 
-        // Update profile information in the database
-        String username = "xmx";
-        DatabaseUtils.updateProfile(username, updatedFirstname, updatedLastname, updatedPassword);
+        if (validateInput(updatedFirstname, updatedLastname, updatedPassword)) {
+            try {
+                boolean updateSuccess = userDao.updateUser(UserSession.getLoggedInUser().getUsername(), updatedFirstname, updatedLastname, updatedPassword);
+                if (updateSuccess) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Profile updated successfully!");
 
-        // Display updated profile information
-        profile_firstname.setText(updatedFirstname);
-        profile_lastname.setText(updatedLastname);
-        profile_password.setText(updatedPassword);
+                    // update session user info
+                    UserSession.getLoggedInUser().setFirstname(updatedFirstname);
+                    UserSession.getLoggedInUser().setLastname(updatedLastname);
+                    UserSession.getLoggedInUser().setPassword(updatedPassword);
 
-        // Disable text fields after saving
-        field_firstname.setVisible(false);
-        field_lastname.setVisible(false);
-        field_password.setVisible(false);
-        
-        // Hide save button
-        button_saveprofile.setVisible(false);
-        
-        // Show edit button
-        button_editprofile.setVisible(true);
-        
-        // successful alert
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText("Profile updated successfully!");
-        alert.showAndWait();
-        
-        // Reload the profile window to show new info
-        reloadProfileWindow();
-    }
+                    // reload updated profile information
+                    loadUserProfile();
 
-    // refresh the profile window after update
-    private void reloadProfileWindow() {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/Profile.fxml"));
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) button_logout.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+                    field_firstname.setVisible(false);
+                    field_lastname.setVisible(false);
+                    field_password.setVisible(false);
+                    button_saveprofile.setVisible(false);
+                    button_editprofile.setVisible(true);
+
+                    profile_firstname.setVisible(true);
+                    profile_lastname.setVisible(true);
+                    profile_password.setVisible(true);
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Update Error", "Failed to update profile. Please try again.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Update Error", "An error occurred while updating profile.");
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Update Error", "Please fill in all fields.");
         }
     }
 
-    // handle logout
+    private boolean validateInput(String firstname, String lastname, String password) {
+        return !firstname.trim().isEmpty() && !lastname.trim().isEmpty() && !password.trim().isEmpty();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    // nav methods
+
     @FXML
     private void handleLogout(ActionEvent event) {
-        Stage stage = (Stage) button_logout.getScene().getWindow();
-        stage.close();
+        UserSession.clearSession();
+        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
     }
 
-    // go back to home
     @FXML
     private void handleHome(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/LoggedIn.fxml"));
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) button_home.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Home", 1200, 800);
+    }
+
+    @FXML
+    private void handleNewOrderButton(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/NewOrder.fxml", "New Order", 1200, 800);
     }
     
     @FXML
-    private void handleNewOrderButton(ActionEvent event) {
-        try {
-            // Load the neworder.fxml file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/NewOrder.fxml"));
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void handleViewOrders(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/OrderHistory.fxml", "Order History", 1200, 800);
     }
 }
-

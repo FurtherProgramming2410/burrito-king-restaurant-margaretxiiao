@@ -1,4 +1,4 @@
-package javafilesforlater;
+package restaurant;
 
 import java.util.Scanner;
 

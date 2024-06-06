@@ -1,22 +1,20 @@
 package controller;
 
+import dao.UserDao;
+import dao.UserDaoImpl;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
-import javafx.stage.Stage;
+import utils.SceneChanger;
 
-import java.io.IOException;
+import java.sql.SQLException;
 
 public class SignUpController {
 
-	// buttons
+    // buttons
     @FXML
     private Button button_signup;
 
@@ -36,6 +34,8 @@ public class SignUpController {
     @FXML
     private TextField username;
 
+    private final UserDao userDao = new UserDaoImpl();
+
     @FXML
     public void initialize() {
         button_signup.setOnAction(this::handleSignUp);
@@ -48,43 +48,43 @@ public class SignUpController {
         String usernameText = username.getText();
         String passwordText = password.getText();
 
-        if (!usernameText.trim().isEmpty() && !firstNameText.trim().isEmpty() && !lastNameText.trim().isEmpty() && !passwordText.trim().isEmpty()) {
-            boolean signUpSuccess = DatabaseUtils.signUpUser(event, usernameText, firstNameText, lastNameText, passwordText);
-            
-            if (signUpSuccess) {
-                // alert if successful
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Sign Up Successful");
-                successAlert.setHeaderText(null);
-                successAlert.setContentText("Sign up successful!");
-                successAlert.show();
-            } else {
-                // error alert
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Sign Up Error");
-                errorAlert.setHeaderText(null);
-                errorAlert.setContentText("Failed to sign up. Please try again.");
-                errorAlert.show();
+        if (validateInput(firstNameText, lastNameText, usernameText, passwordText)) {
+            try {
+                if (userDao.getUserByUsername(usernameText) != null) {
+                    showAlert(Alert.AlertType.ERROR, "Sign Up Error", "Username already exists. Please choose another username.");
+                } else {
+                    boolean signUpSuccess = userDao.createUser(usernameText, firstNameText, lastNameText, passwordText);
+                    if (signUpSuccess) {
+                        showAlert(Alert.AlertType.INFORMATION, "Sign Up Successful", "Sign up successful! You can now log in.");
+                        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Sign Up Error", "Failed to sign up. Please try again.");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Sign Up Error", "Couldn't complete sign up. Please try again.");
             }
         } else {
-            // validation alert
-            Alert validationAlert = new Alert(Alert.AlertType.ERROR);
-            validationAlert.setContentText("Please fill in all information");
-            validationAlert.show();
+            showAlert(Alert.AlertType.ERROR, "Sign Up Error", "Please fill in all information.");
         }
     }
+    
+    // check if fields are not empty
+    private boolean validateInput(String firstName, String lastName, String username, String password) {
+        return !firstName.trim().isEmpty() && !lastName.trim().isEmpty() && !username.trim().isEmpty() && !password.trim().isEmpty();
+    }
 
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
 
-    // redirect to signin page on click of the signin button
+    // Redirect to sign in page on click of the sign in button
     private void handleSignIn(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/Main.fxml"));
-            Scene scene = new Scene(root, 700, 500);
-            Stage stage = (Stage) button_signin.getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
     }
 }

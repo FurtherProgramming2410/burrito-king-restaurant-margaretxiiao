@@ -1,4 +1,4 @@
-package javafilesforlater;
+package restaurant;
 public class Fries extends FoodItem{
 
     public Fries(double price)

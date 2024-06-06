@@ -1,54 +1,47 @@
 package controller;
 
+import dao.UserDao;
+import dao.UserDaoImpl;
 import javafx.fxml.FXML;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
+import model.User;
+import utils.SceneChanger;
+import utils.UserSession;
 
-import java.io.IOException;
+import java.sql.SQLException;
 
 public class LogInController {
 
-    @FXML
-    private Button button_signin;
+    private final UserDao userDao = new UserDaoImpl();
+
+    // buttons
     
     @FXML
-    private TextField firstName;
-
+    private Button button_signup;
+    
     @FXML
-    private TextField lastName;
+    private Button button_signin;
 
+    // input fields for login
     @FXML
     private TextField password;
 
     @FXML
     private TextField username;
 
-    @FXML
-    private Button button_signup;
+
 
     @FXML
     public void initialize() {
         button_signin.setOnAction(this::handleSignIn);
-
-
+        
+        // change to signup view
         button_signup.setOnAction(event -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/SignUp.fxml"));
-                Parent root = loader.load();
-                Scene scene = new Scene(root, 700, 500);
-                Stage stage = (Stage) button_signin.getScene().getWindow();
-                stage.setScene(scene);
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            SceneChanger.changeScene(event, "/view/SignUp.fxml", "Sign Up", 700, 500);
         });
     }
 
@@ -58,54 +51,61 @@ public class LogInController {
         String passwordText = password.getText();
 
         if (!usernameText.trim().isEmpty() && !passwordText.trim().isEmpty()) {
-            if (DatabaseUtils.authenticateUser(usernameText, passwordText)) {
-                // Get user's first and last name from the database
-                String[] userInfo = DatabaseUtils.getUserInfo(usernameText);
-                if (userInfo != null && userInfo.length == 2) {
-                    String firstname = userInfo[0];
-                    String lastname = userInfo[1];
-                    openLoggedInWindow(event, firstname, lastname);
+            try {
+                User user = userDao.getUser(usernameText, passwordText);
+                if (user != null) {
+                    // set the user session with the logged-in user
+                    UserSession.setLoggedInUser(user);
+                    // display success alert and open the logged-in window
+                    showSuccessAlert(event, user.getFirstname(), user.getLastname());
                 } else {
-                    System.out.println("Failed to retrieve user information");
+                    showAlert(Alert.AlertType.ERROR, "Invalid Credentials", "Invalid username or password!");
                 }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Invalid username or password!");
-                alert.show();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Login Error", "An error occurred while trying to log in.");
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Please enter username and password!");
-            alert.show();
+            showAlert(Alert.AlertType.ERROR, "Missing Credentials", "Please enter username and password!");
         }
     }
 
+    // sisplay success alert
+    private void showSuccessAlert(ActionEvent event, String firstname, String lastname) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Login Successful");
+        alert.setHeaderText(null);
+        alert.setContentText("Welcome, " + firstname + " " + lastname + "!");
 
-    private void openLoggedInWindow(ActionEvent event, String firstname, String lastname) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoggedIn.fxml"));
-            Parent root = loader.load();
-            LoggedInController loggedInController = loader.getController();
-            loggedInController.setUserInformation(firstname, lastname);
-            Scene scene = new Scene(root, 1200, 800);
-            Stage stage = new Stage();
-            stage.setScene(scene);
+     // once the alert is closed, open the dashboard
+        alert.setOnHidden(e -> {
+            // close the current login window
+            Stage loginStage = (Stage) button_signin.getScene().getWindow();
+            loginStage.close();
+            // open the logged-in window
+            openLoggedInWindow(event);
+        });
 
-            // Display success alert
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Login Successful");
-            alert.setHeaderText(null);
-            alert.setContentText("Welcome, " + firstname + " " + lastname + "!");
-            alert.setOnHidden(e -> {
-                // Once the alert is closed, open the dashboard
-                stage.show(); // Show the dashboard
-                // Close the login window
-                Stage loginStage = (Stage) button_signin.getScene().getWindow();
-                loginStage.close();
-            });
-            alert.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        alert.show();
+    }
+
+    private void openLoggedInWindow(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Welcome", 1200, 800, controller -> {
+            if (controller instanceof LoggedInController) {
+                LoggedInController loggedInController = (LoggedInController) controller;
+                User loggedInUser = UserSession.getLoggedInUser();
+                if (loggedInUser != null) {
+                    loggedInController.setUserInformation(loggedInUser.getFirstname(), loggedInUser.getLastname());
+                }
+            }
+        });
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.show();
     }
 }

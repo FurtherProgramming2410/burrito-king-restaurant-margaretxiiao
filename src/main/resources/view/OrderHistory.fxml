@@ -22,7 +22,7 @@
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button fx:id="button_editprofile" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
+            <Button fx:id="button_neworder" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -51,9 +51,9 @@
       </AnchorPane>
       <AnchorPane prefHeight="795.0" prefWidth="953.0">
          <children>
-            <Label fx:id="label_allorders" layoutX="75.0" layoutY="59.0" prefHeight="36.0" prefWidth="178.0" text="All Orders">
+            <Label layoutX="75.0" layoutY="59.0" prefHeight="36.0" prefWidth="178.0" text="All Orders">
                <font>
-                  <Font name="Corbel Bold" size="26.0" />
+                  <Font name="Corbel Bold" size="26.0" /> 
                </font>
             </Label>
          </children>
