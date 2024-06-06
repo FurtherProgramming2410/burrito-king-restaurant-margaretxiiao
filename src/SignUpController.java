@@ -7,18 +7,21 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class SignUpController {
 
+	// buttons
     @FXML
     private Button button_signup;
 
     @FXML
     private Button button_signin;
 
+    // fields 
     @FXML
     private TextField firstName;
 
@@ -44,15 +47,33 @@ public class SignUpController {
         String passwordText = password.getText();
 
         if (!usernameText.trim().isEmpty() && !firstNameText.trim().isEmpty() && !lastNameText.trim().isEmpty() && !passwordText.trim().isEmpty()) {
-            DatabaseUtils.signUpUser(event, usernameText, firstNameText, lastNameText, passwordText);
+            boolean signUpSuccess = DatabaseUtils.signUpUser(event, usernameText, firstNameText, lastNameText, passwordText);
+            
+            if (signUpSuccess) {
+                // alert if successful
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Sign Up Successful");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Sign up successful!");
+                successAlert.show();
+            } else {
+                // error alert
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Sign Up Error");
+                errorAlert.setHeaderText(null);
+                errorAlert.setContentText("Failed to sign up. Please try again.");
+                errorAlert.show();
+            }
         } else {
-            System.out.println("Please fill in all information");
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Please fill in all information");
-            alert.show();
+            // validation alert
+            Alert validationAlert = new Alert(Alert.AlertType.ERROR);
+            validationAlert.setContentText("Please fill in all information");
+            validationAlert.show();
         }
     }
 
+
+    // redirect to signin page on click of the signin button
     private void handleSignIn(ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/Main.fxml"));

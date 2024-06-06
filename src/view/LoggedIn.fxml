@@ -18,17 +18,17 @@
                   <Image url="@../images/BurritoKing.gif" />
                </image>
             </ImageView>
-            <Button fx:id="button_logout" layoutX="30.0" layoutY="721.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Logout" textAlignment="CENTER">
+            <Button fx:id="button_logout" layoutX="30.0" layoutY="721.0" mnemonicParsing="false" onAction="#handleLogout" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Logout" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button fx:id="button_neworder" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrderButton" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
+            <Button fx:id="button_neworder" layoutX="31.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleNewOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="New Order" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button fx:id="button_viewprofile" layoutX="30.0" layoutY="260.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="View Profile" textAlignment="CENTER">
+            <Button fx:id="button_viewprofile" layoutX="30.0" layoutY="260.0" mnemonicParsing="false" onAction="#handleViewProfile" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="View Profile" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -38,12 +38,12 @@
                   <Image url="@../images/burritocat.png" />
                </image>
             </ImageView>
-            <Button layoutX="30.0" layoutY="373.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Order History" textAlignment="CENTER">
+            <Button fx:id="button_orderhistory" layoutX="30.0" layoutY="373.0" mnemonicParsing="false" onAction="#handleViewOrders" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Order History" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
             </Button>
-            <Button fx:id="button_home" layoutX="30.0" layoutY="657.0" mnemonicParsing="false" onAction="#initialize" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FF7E62; -fx-cursor: hand;" text="Home" textAlignment="CENTER">
+            <Button layoutX="30.0" layoutY="657.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FF7E62; -fx-cursor: hand;" text="Home" textAlignment="CENTER">
                <font>
                   <Font name="Corbel Bold" size="18.0" />
                </font>
@@ -64,7 +64,7 @@
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
-            <Label fx:id="label_welcome11" layoutX="490.0" layoutY="398.0" prefHeight="36.0" prefWidth="194.0" text="Order Summary">
+            <Label fx:id="label_welcome11" layoutX="463.0" layoutY="409.0" prefHeight="36.0" prefWidth="194.0" text="Order Summary">
                <font>
                   <Font name="Corbel Bold" size="26.0" />
                </font>

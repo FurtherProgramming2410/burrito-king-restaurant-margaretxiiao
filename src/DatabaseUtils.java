@@ -12,6 +12,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 public class DatabaseUtils {
 	
@@ -25,7 +28,7 @@ public class DatabaseUtils {
         PreparedStatement preparedStatement = null;
 
         try {
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD); 
             String query = "UPDATE users SET firstname=?, lastname=?, password=? WHERE username=?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, updatedFirstname);
@@ -78,15 +81,15 @@ public class DatabaseUtils {
     
     
 
-    // Updated signUpUser method
-    public static void signUpUser(ActionEvent event, String username, String firstname, String lastname, String password) {
+    //  signup method to store user info in database
+    public static boolean signUpUser(ActionEvent event, String username, String firstname, String lastname, String password) {
         Connection connection = null;
         PreparedStatement psInsert = null;
         PreparedStatement psCheckUserExists = null;
         ResultSet resultSet = null;
 
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/javafx-burritoking", "root", "root");
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             psCheckUserExists = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
             psCheckUserExists.setString(1, username);
             resultSet = psCheckUserExists.executeQuery();
@@ -96,22 +99,25 @@ public class DatabaseUtils {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("You cannot use this username.");
                 alert.show();
+                return false;
             } else {
                 psInsert = connection.prepareStatement("INSERT INTO users (username, firstname, lastname, password) VALUES (?, ?, ?, ?)");
                 psInsert.setString(1, username);
                 psInsert.setString(2, firstname);
                 psInsert.setString(3, lastname);
                 psInsert.setString(4, password);
-                psInsert.executeUpdate(); // Use executeUpdate instead of execute for INSERT statements
-
-                // Call changeScene method from DatabaseUtils class with the correct number of arguments
+                psInsert.executeUpdate(); 
+                
+        
                 DatabaseUtils.changeScene(event, "/view/loggedIn.fxml", "Welcome", username, null, null, 1200.0, 800.0);
 
+                return true; 
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false; 
         } finally {
-            // Close resources
+
             try {
                 if (resultSet != null) resultSet.close();
                 if (psCheckUserExists != null) psCheckUserExists.close();
@@ -178,7 +184,7 @@ public class DatabaseUtils {
             preparedStatement.setString(2, password);
             resultSet = preparedStatement.executeQuery();
 
-            return resultSet.next(); // Returns true if there's at least one row with the given username and password
+            return resultSet.next(); // if there's at least one row with the given username and password
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -229,6 +235,57 @@ public class DatabaseUtils {
             }
         }
     }
+    
+    
+	    public interface OrderStoredCallback {
+	        void onOrderStored(int orderId);
+	    }
 
 
-}
+
+        public static boolean storeOrder(int userId, int burritoQty, int friesQty, int sodaQty, int mealQty, double totalPrice, int preparationTime, OrderStoredCallback callback) {
+            Connection connection = null;
+            PreparedStatement preparedStatement = null;
+
+            try {
+                connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                String query = "INSERT INTO orders (user_id, burrito_qty, fries_qty, soda_qty, meal_qty, total_price, preparation_time, order_time, ready_for_collection) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, false)";
+                preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                preparedStatement.setInt(1, userId);
+                preparedStatement.setInt(2, burritoQty);
+                preparedStatement.setInt(3, friesQty);
+                preparedStatement.setInt(4, sodaQty);
+                preparedStatement.setInt(5, mealQty);
+                preparedStatement.setDouble(6, totalPrice);
+                preparedStatement.setInt(7, preparationTime);
+                int rowsInserted = preparedStatement.executeUpdate();
+
+                if (rowsInserted > 0) {
+                    ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+                    if (generatedKeys.next()) {
+                        int orderId = generatedKeys.getInt(1);
+                        callback.onOrderStored(orderId); // to notify user of order number once created
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            } finally {
+                try {
+                    if (preparedStatement != null) {
+                        preparedStatement.close();
+                    }
+                    if (connection != null) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
