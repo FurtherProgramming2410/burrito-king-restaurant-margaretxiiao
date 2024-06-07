@@ -18,7 +18,7 @@ import utils.UserSession;
 import java.sql.SQLException;
 import java.util.List;
 
-public class LoggedInController {
+public class HomeController {
 
     @FXML
     private Label label_welcome;
@@ -89,7 +89,7 @@ public class LoggedInController {
     @FXML
     private void handleLogout(ActionEvent event) {
         UserSession.clearSession();
-        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
     }
 
     @FXML

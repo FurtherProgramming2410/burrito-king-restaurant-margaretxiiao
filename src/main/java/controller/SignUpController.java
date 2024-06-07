@@ -85,6 +85,6 @@ public class SignUpController {
 
     // Redirect to sign in page on click of the sign in button
     private void handleSignIn(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
     }
 }

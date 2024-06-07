@@ -161,12 +161,12 @@ public class ProfileController {
     @FXML
     private void handleLogout(ActionEvent event) {
         UserSession.clearSession();
-        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
     }
 
     @FXML
     private void handleHome(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Home", 1200, 800);
+        SceneChanger.changeScene(event, "/view/Home.fxml", "Home", 1200, 800);
     }
 
     @FXML

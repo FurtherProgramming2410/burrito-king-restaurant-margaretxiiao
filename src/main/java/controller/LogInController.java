@@ -90,9 +90,9 @@ public class LogInController {
     }
 
     private void openLoggedInWindow(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Welcome", 1200, 800, controller -> {
-            if (controller instanceof LoggedInController) {
-                LoggedInController loggedInController = (LoggedInController) controller;
+        SceneChanger.changeScene(event, "/view/Home.fxml", "Welcome", 1200, 800, controller -> {
+            if (controller instanceof HomeController) {
+                HomeController loggedInController = (HomeController) controller;
                 User loggedInUser = UserSession.getLoggedInUser();
                 if (loggedInUser != null) {
                     loggedInController.setUserInformation(loggedInUser.getFirstname(), loggedInUser.getLastname());

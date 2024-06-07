@@ -187,8 +187,8 @@ public class NewOrderController {
             showInfoAlert("Order Placed", "Your order has been placed successfully!\nOrder Number: " + orderId);
             // Redirect to LoggedIn.fxml
             SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Welcome", 1200, 800, controller -> {
-                if (controller instanceof LoggedInController) {
-                    LoggedInController loggedInController = (LoggedInController) controller;
+                if (controller instanceof HomeController) {
+                    HomeController loggedInController = (HomeController) controller;
                     User currentUser = UserSession.getLoggedInUser();
                     if (currentUser != null) {
                         loggedInController.setUserInformation(currentUser.getFirstname(), currentUser.getLastname());
@@ -246,12 +246,12 @@ public class NewOrderController {
     @FXML
     private void handleLogout(ActionEvent event) {
         UserSession.clearSession();
-        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
     }
 
     @FXML
     private void handleHome(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Home", 1200, 800);
+        SceneChanger.changeScene(event, "/view/Home.fxml", "Home", 1200, 800);
     }
 
     @FXML

@@ -10,23 +10,32 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 import model.Order;
 import model.User;
 import utils.SceneChanger;
 import utils.UserSession;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderHistoryController {
 
-	// buttons
+    // Buttons
     @FXML
     private Button button_logout;
+
+    @FXML
+    private Button button_exportorders;
 
     @FXML
     private Button button_home;
@@ -37,7 +46,7 @@ public class OrderHistoryController {
     @FXML
     private Button button_viewprofile;
 
-    // table view and columns
+    // Table view and columns
     @FXML
     private TableView<Order> table_orders;
 
@@ -63,6 +72,7 @@ public class OrderHistoryController {
         button_home.setOnAction(this::handleHome);
         button_neworder.setOnAction(this::handleNewOrder);
         button_viewprofile.setOnAction(this::handleViewProfile);
+        button_exportorders.setOnAction(this::handleExportOrders);
 
         column_orderNumber.setCellValueFactory(new PropertyValueFactory<>("id"));
         column_orderTime.setCellValueFactory(new PropertyValueFactory<>("formattedOrderTime"));
@@ -72,19 +82,18 @@ public class OrderHistoryController {
         loadOrderHistory();
     }
 
-    // nav methods
-    
+    // Navigation methods
     @FXML
     private void handleLogout(ActionEvent event) {
         UserSession.clearSession();
-        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
     }
 
     @FXML
     private void handleHome(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Home", 1200, 800, controller -> {
-            if (controller instanceof LoggedInController) {
-                LoggedInController loggedInController = (LoggedInController) controller;
+        SceneChanger.changeScene(event, "/view/Home.fxml", "Home", 1200, 800, controller -> {
+            if (controller instanceof HomeController) {
+                HomeController loggedInController = (HomeController) controller;
                 User loggedInUser = UserSession.getLoggedInUser();
                 if (loggedInUser != null) {
                     loggedInController.setUserInformation(loggedInUser.getFirstname(), loggedInUser.getLastname());
@@ -102,8 +111,6 @@ public class OrderHistoryController {
     private void handleNewOrder(ActionEvent event) {
         SceneChanger.changeScene(event, "/view/NewOrder.fxml", "New Order", 1200, 800);
     }
-    
-    
 
     private void loadOrderHistory() {
         User loggedInUser = UserSession.getLoggedInUser();
@@ -138,11 +145,11 @@ public class OrderHistoryController {
         dialog.setTitle("Collect Order");
         dialog.setHeaderText("When did you collect this order?");
 
-        // button types
+        // Button types
         ButtonType collectButtonType = new ButtonType("Collect", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(collectButtonType, ButtonType.CANCEL);
 
-        // date and time pickers for order collection time
+        // Date and time pickers for order collection time
         DatePicker datePicker = new DatePicker();
         ComboBox<LocalTime> comboBox_time = new ComboBox<>();
 
@@ -154,7 +161,7 @@ public class OrderHistoryController {
         }
         comboBox_time.setItems(times);
 
-        // Create the grid pane and add the pickers.
+        // gridpane to display date and time pickers for collection.
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -167,7 +174,7 @@ public class OrderHistoryController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // convert the result to a LocalDateTime when collect button is clicked
+        // to convert result to a LocalDateTime when collect button is clicked
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == collectButtonType) {
                 LocalDate selectedDate = datePicker.getValue();
@@ -179,7 +186,7 @@ public class OrderHistoryController {
             return null;
         });
 
-        dialog.showAndWait().ifPresent(selectedDateTime -> handleCollectOrderConfirmation(selectedDateTime));
+        dialog.showAndWait().ifPresent(this::handleCollectOrderConfirmation);
     }
 
     @FXML
@@ -206,8 +213,8 @@ public class OrderHistoryController {
     private void handleCancelOrder(ActionEvent event) {
         Order selectedOrder = table_orders.getSelectionModel().getSelectedItem();
         if (selectedOrder != null && !"collected".equals(selectedOrder.getOrderStatus())) {
-        	
-        	// confirm cancellation of order pop up
+
+            // Confirm cancellation of order pop up
             Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
             confirmationAlert.setTitle("Cancel Order");
             confirmationAlert.setHeaderText(null);
@@ -227,12 +234,119 @@ public class OrderHistoryController {
             showAlert(Alert.AlertType.ERROR, "Invalid Selection", "You can only cancel orders that are not already collected.");
         }
     }
-    
+
     @FXML
     private void handleExportOrders(ActionEvent event) {
-    	//getting ths ready for export to csv later 
+        // dialogue for selecting export options
+        Dialog<List<Order>> dialog = new Dialog<>();
+        dialog.setTitle("Export Orders");
+        dialog.setHeaderText("Select orders and details to export");
+
+        // buttons for dialog
+        ButtonType exportButtonType = new ButtonType("Export", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(exportButtonType, ButtonType.CANCEL);
+
+        // tableView for selecting orders
+        TableView<Order> orderSelectionTable = new TableView<>();
+        orderSelectionTable.setItems(table_orders.getItems()); // same items as in the main table
+        orderSelectionTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        TableColumn<Order, Integer> orderNumberColumn = new TableColumn<>("Order Number");
+        orderNumberColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<Order, String> orderTimeColumn = new TableColumn<>("Order Time");
+        orderTimeColumn.setCellValueFactory(new PropertyValueFactory<>("formattedOrderTime"));
+        TableColumn<Order, Double> totalPriceColumn = new TableColumn<>("Total Price");
+        totalPriceColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
+        TableColumn<Order, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
+
+        orderSelectionTable.getColumns().addAll(orderNumberColumn, orderTimeColumn, totalPriceColumn, statusColumn);
+
+        // width of selection table set
+        orderSelectionTable.setPrefWidth(600); // Adjust the width value as needed
+
+        // checkboxes for selecting details to export
+        CheckBox cbOrderNumber = new CheckBox("Order Number");
+        CheckBox cbOrderTime = new CheckBox("Order Time");
+        CheckBox cbTotalPrice = new CheckBox("Total Price");
+        CheckBox cbStatus = new CheckBox("Status");
+
+        cbOrderNumber.setSelected(true);
+        cbOrderTime.setSelected(true);
+        cbTotalPrice.setSelected(true);
+        cbStatus.setSelected(true);
+
+        // layout for dialog content
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+        grid.setPrefWidth(700); //gridpane width
+
+        grid.add(new Label("Select Orders:"), 0, 0);
+        grid.add(orderSelectionTable, 0, 1, 2, 1);
+        grid.add(new Label("Select Details to Export:"), 0, 2);
+        grid.add(cbOrderNumber, 0, 3);
+        grid.add(cbOrderTime, 0, 4);
+        grid.add(cbTotalPrice, 0, 5);
+        grid.add(cbStatus, 0, 6);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == exportButtonType) {
+                return new ArrayList<>(orderSelectionTable.getSelectionModel().getSelectedItems());
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(ordersToExport -> {
+            if (!ordersToExport.isEmpty()) {
+                exportOrdersToCSV(ordersToExport, cbOrderNumber.isSelected(), cbOrderTime.isSelected(), cbTotalPrice.isSelected(), cbStatus.isSelected());
+            } else {
+                showAlert(Alert.AlertType.INFORMATION, "No Orders Selected", "Please select at least one order to export.");
+            }
+        });
     }
-    
+
+    private void exportOrdersToCSV(List<Order> orders, boolean includeOrderNumber, boolean includeOrderTime, boolean includeTotalPrice, boolean includeStatus) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Orders");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(button_exportorders.getScene().getWindow());
+
+        if (file != null) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                List<String> headers = new ArrayList<>();
+                if (includeOrderNumber) headers.add("Order Number");
+                if (includeOrderTime) headers.add("Order Time");
+                if (includeTotalPrice) headers.add("Total Price");
+                if (includeStatus) headers.add("Status");
+
+                writer.write(String.join(",", headers));
+                writer.newLine();
+
+                for (Order order : orders) {
+                    List<String> values = new ArrayList<>();
+                    if (includeOrderNumber) values.add(String.valueOf(order.getId()));
+                    if (includeOrderTime) values.add(order.getFormattedOrderTime());
+                    if (includeTotalPrice) values.add(order.getFormattedTotalPrice());
+                    if (includeStatus) values.add(order.getOrderStatus());
+
+                    writer.write(String.join(",", values));
+                    writer.newLine();
+                }
+
+                writer.flush();
+
+                // successful export alert
+                showAlert(Alert.AlertType.INFORMATION, "Export Successful", "Orders exported successfully!");
+            } catch (IOException e) {
+                showAlert(Alert.AlertType.ERROR, "Export Failed", "Failed to export orders to CSV file.");
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
