@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import model.Order;
 import model.User;
@@ -22,8 +23,7 @@ import java.time.LocalDate;
 
 public class NewOrderController {
 
-	// buttons
-	
+    // buttons
     @FXML
     private Button button_logout;
     @FXML
@@ -35,7 +35,7 @@ public class NewOrderController {
     @FXML
     private Button button_confirm_qtys;
 
-    // quantity fields
+    // qty inputs
     @FXML
     private TextField input_burrito_qty;
     @FXML
@@ -45,8 +45,7 @@ public class NewOrderController {
     @FXML
     private TextField input_meal_qty;
 
-    // labels
-    
+    // order summary texts
     @FXML
     private Text burrito_qty;
     @FXML
@@ -54,41 +53,41 @@ public class NewOrderController {
     @FXML
     private Text soda_qty;
     @FXML
-    private Text meal_qty;
-    @FXML
     private Text text_totalprice;
-
-    
-    // card number inputs
     @FXML
-    private TextField input_cardnumber;
+    private Text text_vipdiscountamount;
     @FXML
-    private TextField input_cardcvv;
-    @FXML
-    private DatePicker input_cardexpiry;
-    
-    // order details text display 
+    private Text text_totalpreparationtime;
     @FXML
     private Text text_burritocheckoutprice;
     @FXML
     private Text text_friescheckoutprice;
     @FXML
     private Text text_sodacheckoutprice;
+
+    // payment inputs
     @FXML
-    private Text text_checkoutmealprice;
+    private TextField input_cardnumber;
     @FXML
-    private Text text_totalpreparationtime;
-    
-    // labels for vip meals view
+    private TextField input_cardcvv;
+    @FXML
+    private DatePicker input_cardexpiry;
+
+    // vip specific elements
     @FXML
     private Button label_meal;
     @FXML
     private Label label_meal_qty;
+    @FXML
+    private Text label_mealdiscount;
+    @FXML
+    private ImageView image_meal;
 
+    // constants for food prices
     private final double burritoPrice = 7.0;
     private final double friesPrice = 4.0;
     private final double sodaPrice = 2.5;
-    private final double mealPrice = 10.50;
+    private final double mealDiscount = 3.0;
 
     private boolean isVipUser;
     private final OrderDao orderDao = new OrderDaoImpl();
@@ -107,15 +106,17 @@ public class NewOrderController {
         User loggedInUser = UserSession.getLoggedInUser();
         if (loggedInUser != null) {
             isVipUser = loggedInUser.isVip();
+            setVipElementsVisibility(isVipUser);
         }
+    }
 
-        if (!isVipUser) {
-            input_meal_qty.setVisible(false);
-            meal_qty.setVisible(false);
-            label_meal.setVisible(false);
-            label_meal_qty.setVisible(false);
-            text_checkoutmealprice.setVisible(false);
-        }
+    private void setVipElementsVisibility(boolean isVisible) {
+        label_meal.setVisible(isVisible);
+        input_meal_qty.setVisible(isVisible);
+        label_meal_qty.setVisible(isVisible);
+        label_mealdiscount.setVisible(isVisible);
+        text_vipdiscountamount.setVisible(isVisible);
+        image_meal.setVisible(isVisible);
     }
 
     @FXML
@@ -126,22 +127,26 @@ public class NewOrderController {
             int sodaQty = Integer.parseInt(input_soda_qty.getText());
             int mealQty = isVipUser ? Integer.parseInt(input_meal_qty.getText()) : 0;
 
+            // Update quantities
+            burritoQty += mealQty;
+            friesQty += mealQty;
+            sodaQty += mealQty;
+
             burrito_qty.setText(String.valueOf(burritoQty));
             fries_qty.setText(String.valueOf(friesQty));
             soda_qty.setText(String.valueOf(sodaQty));
-            meal_qty.setText(String.valueOf(mealQty));
 
             double burritoTotal = burritoQty * burritoPrice;
             double friesTotal = friesQty * friesPrice;
             double sodaTotal = sodaQty * sodaPrice;
-            double mealTotal = mealQty * mealPrice;
+            double totalDiscount = mealQty * mealDiscount;
 
             text_burritocheckoutprice.setText(String.format("$%.2f", burritoTotal));
             text_friescheckoutprice.setText(String.format("$%.2f", friesTotal));
             text_sodacheckoutprice.setText(String.format("$%.2f", sodaTotal));
-            text_checkoutmealprice.setText(String.format("$%.2f", mealTotal));
+            text_vipdiscountamount.setText(String.format("-$%.2f", totalDiscount));
 
-            double total = burritoTotal + friesTotal + sodaTotal + (isVipUser ? mealTotal : 0);
+            double total = burritoTotal + friesTotal + sodaTotal - totalDiscount;
             text_totalprice.setText(String.format("$%.2f", total));
 
             int preparationTime = calculatePreparationTime(burritoQty, friesQty, sodaQty);
@@ -168,6 +173,11 @@ public class NewOrderController {
         int sodaQty = Integer.parseInt(input_soda_qty.getText());
         int mealQty = isVipUser ? Integer.parseInt(input_meal_qty.getText()) : 0;
 
+        //adjusting quantities for meals
+        burritoQty += mealQty;
+        friesQty += mealQty;
+        sodaQty += mealQty;
+
         double totalPrice = calculateTotalPrice(burritoQty, friesQty, sodaQty, mealQty);
         int preparationTime = calculatePreparationTime(burritoQty, friesQty, sodaQty);
 
@@ -179,19 +189,19 @@ public class NewOrderController {
             return;
         }
 
-        Order order = new Order(userId, burritoQty, friesQty, sodaQty, mealQty, totalPrice, preparationTime);
+        Order order = new Order(userId, burritoQty, friesQty, sodaQty, 0, totalPrice, preparationTime);
 
-        // Store order and get the order_id
+        // store order and get the order_id
         int orderId = orderDao.storeOrder(order);
-        if (orderId > 0) { 
+        if (orderId > 0) {
             showInfoAlert("Order Placed", "Your order has been placed successfully!\nOrder Number: " + orderId);
-            // Redirect to LoggedIn.fxml
-            SceneChanger.changeScene(event, "/view/LoggedIn.fxml", "Welcome", 1200, 800, controller -> {
+            // redirect to Home.fxml
+            SceneChanger.changeScene(event, "/view/Home.fxml", "Welcome", 1200, 800, controller -> {
                 if (controller instanceof HomeController) {
-                    HomeController loggedInController = (HomeController) controller;
+                    HomeController homeController = (HomeController) controller;
                     User currentUser = UserSession.getLoggedInUser();
                     if (currentUser != null) {
-                        loggedInController.setUserInformation(currentUser.getFirstname(), currentUser.getLastname());
+                        homeController.setUserInformation(currentUser.getFirstname(), currentUser.getLastname());
                     }
                 }
             });
@@ -201,14 +211,16 @@ public class NewOrderController {
     }
 
     private double calculateTotalPrice(int burritoQty, int friesQty, int sodaQty, int mealQty) {
-        return (burritoQty * burritoPrice) + (friesQty * friesPrice) + (sodaQty * sodaPrice) + (mealQty * mealPrice);
+        double burritoTotal = burritoQty * burritoPrice;
+        double friesTotal = friesQty * friesPrice;
+        double sodaTotal = sodaQty * sodaPrice;
+        double totalDiscount = mealQty * mealDiscount;
+        return burritoTotal + friesTotal + sodaTotal - totalDiscount;
     }
 
     private int calculatePreparationTime(int burritoQty, int friesQty, int sodaQty) {
         int burritoPrepTime = Burrito.getPreparationTime(burritoQty);
         int friesPrepTime = Fries.getPreparationTime(friesQty);
-
-
         return burritoPrepTime + friesPrepTime;
     }
 
@@ -240,9 +252,8 @@ public class NewOrderController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    
-    // nav methods
 
+    // nav methods
     @FXML
     private void handleLogout(ActionEvent event) {
         UserSession.clearSession();
@@ -258,10 +269,9 @@ public class NewOrderController {
     private void handleViewProfile(ActionEvent event) {
         SceneChanger.changeScene(event, "/view/Profile.fxml", "Profile", 1200, 800);
     }
-    
+
     @FXML
     private void handleViewOrders(ActionEvent event) {
         SceneChanger.changeScene(event, "/view/OrderHistory.fxml", "Order History", 1200, 800);
     }
-    
 }
