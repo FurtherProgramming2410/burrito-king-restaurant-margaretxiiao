@@ -21,7 +21,7 @@ public class SignUpController {
     @FXML
     private Button button_signin;
 
-    // fields 
+    // input fields 
     @FXML
     private TextField firstName;
 
@@ -83,7 +83,7 @@ public class SignUpController {
         alert.show();
     }
 
-    // Redirect to sign in page on click of the sign in button
+    // redirect to sign in page on click of the sign in button
     private void handleSignIn(ActionEvent event) {
         SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
     }

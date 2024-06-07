@@ -7,6 +7,7 @@ public class User {
     private String lastname;
     private String password;
     private boolean isVip;
+    private int credits;
 
     // Full constructor
     public User(int userId, String username, String firstname, String lastname, String password, boolean isVip) {
@@ -75,4 +76,13 @@ public class User {
     public void setVip(boolean isVip) {
         this.isVip = isVip;
     }
+    
+    public int getCredits() {
+        return credits;
+    }
+
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
+
 }

@@ -19,8 +19,14 @@ public class UserDaoImpl implements UserDao {
     public void setup() throws SQLException {
         try (Connection connection = Database.getConnection();
              Statement stmt = connection.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (username VARCHAR(10) NOT NULL, " +
-                         "firstname VARCHAR(50), lastname VARCHAR(50), password VARCHAR(8) NOT NULL, PRIMARY KEY (username))";
+            String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
+                         "user_id INT AUTO_INCREMENT PRIMARY KEY, " +
+                         "username VARCHAR(50) NOT NULL, " +
+                         "firstname VARCHAR(50), " +
+                         "lastname VARCHAR(50), " +
+                         "password VARCHAR(50) NOT NULL, " +
+                         "isVIP BOOLEAN DEFAULT FALSE, " +
+                         "credits INT DEFAULT 0)";
             stmt.executeUpdate(sql);
         }
     }
@@ -104,14 +110,12 @@ public class UserDaoImpl implements UserDao {
     
     @Override
     public void upgradeToVIP(int userId) throws SQLException {
-        String sql = "UPDATE users SET isVIP = ? WHERE user_id = ?";
+        String sql = "UPDATE " + TABLE_NAME + " SET isVIP = TRUE WHERE user_id = ?";
 
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setBoolean(1, true); // isVIP to true
+            stmt.setBoolean(1, true); // Set isVIP to true
             stmt.setInt(2, userId);
-
             stmt.executeUpdate();
         }
     }

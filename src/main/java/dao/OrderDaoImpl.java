@@ -17,7 +17,7 @@ public class OrderDaoImpl implements OrderDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Order order = new Order(
-                        rs.getInt("order_id"), // Assuming order_id is the primary key
+                        rs.getInt("order_id"),
                         rs.getInt("user_id"),
                         rs.getInt("burrito_qty"),
                         rs.getInt("fries_qty"),
@@ -114,6 +114,17 @@ public class OrderDaoImpl implements OrderDao {
             stmt.setString(2, email);
             stmt.setInt(3, userId);
 
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public void updateUserCredits(int userId, int userCredits) throws SQLException {
+        String sql = "UPDATE users SET credits = ? WHERE user_id = ?";
+        try (Connection connection = Database.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userCredits);
+            stmt.setInt(2, userId);
             stmt.executeUpdate();
         }
     }

@@ -22,12 +22,16 @@ import java.util.regex.Pattern;
 
 public class HomeController {
 
+	// home labels 
+	
     @FXML
     private Label label_welcome;
 
     @FXML
     private Label label_vipstatus;
 
+    // nav and function buttons
+    
     @FXML
     private Button button_logout;
 
@@ -96,6 +100,7 @@ public class HomeController {
         list_activeOrders.setItems(items);
     }
 
+    // handle unlock vip button event
     @FXML
     private void handleUnlockVIP(ActionEvent event) {
         User loggedInUser = UserSession.getLoggedInUser();

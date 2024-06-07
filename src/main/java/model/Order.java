@@ -15,6 +15,9 @@ public class Order {
     private Timestamp orderTime;
     private String orderStatus;
 
+    private double actualPaidAmount;
+    private int creditsUsed;
+
     // order constructor
     
     public Order(int id, int userId, int burritoQty, int friesQty, int sodaQty, int mealQty, double totalPrice, int preparationTime, String orderStatus, Timestamp orderTime) {
@@ -148,5 +151,21 @@ public class Order {
     // format order price
     public String getFormattedTotalPrice() {
         return String.format("$%.2f", totalPrice);
+    }
+    
+    public double getActualPaidAmount() {
+        return actualPaidAmount;
+    }
+
+    public void setActualPaidAmount(double actualPaidAmount) {
+        this.actualPaidAmount = actualPaidAmount;
+    }
+
+    public int getCreditsUsed() {
+        return creditsUsed;
+    }
+
+    public void setCreditsUsed(int creditsUsed) {
+        this.creditsUsed = creditsUsed;
     }
 }

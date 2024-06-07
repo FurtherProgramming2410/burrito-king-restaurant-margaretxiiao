@@ -30,12 +30,9 @@ import java.util.List;
 
 public class OrderHistoryController {
 
-    // Buttons
+    // nav and function buttons
     @FXML
     private Button button_logout;
-
-    @FXML
-    private Button button_exportorders;
 
     @FXML
     private Button button_home;
@@ -45,8 +42,11 @@ public class OrderHistoryController {
 
     @FXML
     private Button button_viewprofile;
+    
+    @FXML
+    private Button button_exportorders;
 
-    // Table view and columns
+    // order table view and columns
     @FXML
     private TableView<Order> table_orders;
 
@@ -61,6 +61,7 @@ public class OrderHistoryController {
 
     @FXML
     private TableColumn<Order, String> column_status;
+    
 
     private final OrderDao orderDao = new OrderDaoImpl();
 
@@ -80,36 +81,6 @@ public class OrderHistoryController {
         column_status.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
 
         loadOrderHistory();
-    }
-
-    // Navigation methods
-    @FXML
-    private void handleLogout(ActionEvent event) {
-        UserSession.clearSession();
-        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
-    }
-
-    @FXML
-    private void handleHome(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/Home.fxml", "Home", 1200, 800, controller -> {
-            if (controller instanceof HomeController) {
-                HomeController loggedInController = (HomeController) controller;
-                User loggedInUser = UserSession.getLoggedInUser();
-                if (loggedInUser != null) {
-                    loggedInController.setUserInformation(loggedInUser.getFirstname(), loggedInUser.getLastname());
-                }
-            }
-        });
-    }
-
-    @FXML
-    private void handleViewProfile(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/Profile.fxml", "Profile", 1200, 800);
-    }
-
-    @FXML
-    private void handleNewOrder(ActionEvent event) {
-        SceneChanger.changeScene(event, "/view/NewOrder.fxml", "New Order", 1200, 800);
     }
 
     private void loadOrderHistory() {
@@ -260,6 +231,7 @@ public class OrderHistoryController {
         TableColumn<Order, String> statusColumn = new TableColumn<>("Status");
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
 
+        // to show all the table columns for selection to export
         orderSelectionTable.getColumns().addAll(orderNumberColumn, orderTimeColumn, totalPriceColumn, statusColumn);
 
         // width of selection table set
@@ -354,5 +326,35 @@ public class OrderHistoryController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.show();
+    }
+    
+    // nav methods
+    @FXML
+    private void handleLogout(ActionEvent event) {
+        UserSession.clearSession();
+        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
+    }
+
+    @FXML
+    private void handleHome(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/Home.fxml", "Home", 1200, 800, controller -> {
+            if (controller instanceof HomeController) {
+                HomeController loggedInController = (HomeController) controller;
+                User loggedInUser = UserSession.getLoggedInUser();
+                if (loggedInUser != null) {
+                    loggedInController.setUserInformation(loggedInUser.getFirstname(), loggedInUser.getLastname());
+                }
+            }
+        });
+    }
+
+    @FXML
+    private void handleViewProfile(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/Profile.fxml", "Profile", 1200, 800);
+    }
+
+    @FXML
+    private void handleNewOrder(ActionEvent event) {
+        SceneChanger.changeScene(event, "/view/NewOrder.fxml", "New Order", 1200, 800);
     }
 }

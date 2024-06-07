@@ -34,6 +34,8 @@ public class NewOrderController {
     private Button button_placeorder;
     @FXML
     private Button button_confirm_qtys;
+    @FXML
+    private Button button_applycredits;
 
     // qty inputs
     @FXML
@@ -73,13 +75,25 @@ public class NewOrderController {
     @FXML
     private DatePicker input_cardexpiry;
 
-    // vip specific elements
+    // vip-specific elements
     @FXML
-    private Button label_meal;
+    private Text text_mealdiscount;
     @FXML
     private Label label_meal_qty;
     @FXML
-    private Text label_mealdiscount;
+    private Button label_meal;
+    @FXML
+    private Text label_redeemcredits;
+    @FXML
+    private Text label_creditsavailable;
+    @FXML
+    private Text text_creditsavailable;
+    @FXML
+    private Text text_appliedcredits;
+    @FXML
+    private Text label_creditsapplied;
+    @FXML
+    private TextField input_redeemcredits;
     @FXML
     private ImageView image_meal;
 
@@ -103,20 +117,36 @@ public class NewOrderController {
             }
         });
 
+        button_applycredits.setOnAction(event -> handleApplyCredits());
+
         User loggedInUser = UserSession.getLoggedInUser();
         if (loggedInUser != null) {
             isVipUser = loggedInUser.isVip();
             setVipElementsVisibility(isVipUser);
         }
     }
+    
+    // for VIP only view
 
     private void setVipElementsVisibility(boolean isVisible) {
         label_meal.setVisible(isVisible);
         input_meal_qty.setVisible(isVisible);
         label_meal_qty.setVisible(isVisible);
-        label_mealdiscount.setVisible(isVisible);
         text_vipdiscountamount.setVisible(isVisible);
+        label_redeemcredits.setVisible(isVisible);
+        label_creditsavailable.setVisible(isVisible);
+        text_creditsavailable.setVisible(isVisible);
+        text_appliedcredits.setVisible(isVisible);
+        label_creditsapplied.setVisible(isVisible);
+        input_redeemcredits.setVisible(isVisible);
+        button_applycredits.setVisible(isVisible);
+        text_mealdiscount.setVisible(isVisible);
         image_meal.setVisible(isVisible);
+
+        if (isVisible) {
+            User loggedInUser = UserSession.getLoggedInUser();
+            text_creditsavailable.setText(String.valueOf(loggedInUser.getCredits()));
+        }
     }
 
     @FXML
@@ -157,6 +187,37 @@ public class NewOrderController {
     }
 
     @FXML
+    private void handleApplyCredits() {
+        try {
+            int creditsAvailable = Integer.parseInt(text_creditsavailable.getText());
+            int creditsToRedeem = Integer.parseInt(input_redeemcredits.getText());
+
+            if (creditsToRedeem <= 0 || creditsToRedeem > creditsAvailable) {
+                showErrorAlert("Invalid Credits", "You don't have enough credits or the input is invalid.");
+                return;
+            }
+
+            // Ensure creditsToRedeem is a multiple of 100
+            if (creditsToRedeem % 100 != 0) {
+                showErrorAlert("Invalid Credits", "100 credits = $1. Please redeem in whole dollars :)");
+                return;
+            }
+
+            // Calculate the redeemable credit value in dollars
+            double creditValue = creditsToRedeem / 100.0;
+            text_appliedcredits.setText(String.format("$%.2f", creditValue));
+            int newCreditBalance = creditsAvailable - creditsToRedeem;
+            text_creditsavailable.setText(String.valueOf(newCreditBalance));
+
+            double currentTotalPrice = Double.parseDouble(text_totalprice.getText().replace("$", ""));
+            currentTotalPrice -= creditValue;
+            text_totalprice.setText(String.format("$%.2f", currentTotalPrice));
+        } catch (NumberFormatException e) {
+            showErrorAlert("Invalid Input", "Please enter a valid number of credits.");
+        }
+    }
+
+    @FXML
     private void handlePlaceOrder(ActionEvent event) throws SQLException {
         String cardNumber = input_cardnumber.getText();
         String cardCvv = input_cardcvv.getText();
@@ -168,20 +229,30 @@ public class NewOrderController {
             return;
         }
 
-        int burritoQty = Integer.parseInt(input_burrito_qty.getText());
-        int friesQty = Integer.parseInt(input_fries_qty.getText());
-        int sodaQty = Integer.parseInt(input_soda_qty.getText());
-        int mealQty = isVipUser ? Integer.parseInt(input_meal_qty.getText()) : 0;
+        int burritoQty = getIntFromTextField(input_burrito_qty, "burrito quantity");
+        int friesQty = getIntFromTextField(input_fries_qty, "fries quantity");
+        int sodaQty = getIntFromTextField(input_soda_qty, "soda quantity");
+        int mealQty = isVipUser ? getIntFromTextField(input_meal_qty, "meal quantity") : 0;
 
-        //adjusting quantities for meals
+        // Adjust quantities for meals
         burritoQty += mealQty;
         friesQty += mealQty;
         sodaQty += mealQty;
 
         double totalPrice = calculateTotalPrice(burritoQty, friesQty, sodaQty, mealQty);
-        int preparationTime = calculatePreparationTime(burritoQty, friesQty, sodaQty);
 
         User loggedInUser = UserSession.getLoggedInUser();
+        if (loggedInUser != null) {
+            int credits = loggedInUser.getCredits();
+            int creditsToRedeem = getIntFromTextField(input_redeemcredits, "credits to redeem");
+            double discount = creditsToRedeem / 100.0;
+            totalPrice -= discount;
+            loggedInUser.setCredits(credits - creditsToRedeem);
+            orderDao.updateUserCredits(loggedInUser.getUserId(), loggedInUser.getCredits());
+        }
+
+        int preparationTime = calculatePreparationTime(burritoQty, friesQty, sodaQty);
+
         int userId = loggedInUser != null ? loggedInUser.getUserId() : -1;
 
         if (userId == -1) {
@@ -194,7 +265,15 @@ public class NewOrderController {
         // store order and get the order_id
         int orderId = orderDao.storeOrder(order);
         if (orderId > 0) {
+            // Add credits to user's account only if VIP
+            if (isVipUser) {
+                int creditsEarned = addCreditsToUser(totalPrice);
+                showInfoAlert("You've Earned Credits!", "Earned credits from Order Number " + orderId + ": " + creditsEarned);
+            }
+
+            // show order placed info
             showInfoAlert("Order Placed", "Your order has been placed successfully!\nOrder Number: " + orderId);
+
             // redirect to Home.fxml
             SceneChanger.changeScene(event, "/view/Home.fxml", "Welcome", 1200, 800, controller -> {
                 if (controller instanceof HomeController) {
@@ -207,6 +286,19 @@ public class NewOrderController {
             });
         } else {
             showErrorAlert("Order Error", "Failed to place the order. Please try again later.");
+        }
+    }
+
+    private int getIntFromTextField(TextField textField, String fieldName) {
+        try {
+            String text = textField.getText().trim();
+            if (text.isEmpty()) {
+                return 0;  // Default to 0 if empty
+            }
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            showErrorAlert("Invalid Input", "Please enter a valid number for " + fieldName + ".");
+            throw e;
         }
     }
 
@@ -251,6 +343,22 @@ public class NewOrderController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private int addCreditsToUser(double amountPaid) {
+        int creditsEarned = (int) amountPaid;
+        User loggedInUser = UserSession.getLoggedInUser();
+        if (loggedInUser != null) {
+            int userCredits = loggedInUser.getCredits() + creditsEarned;
+            loggedInUser.setCredits(userCredits);
+            try {
+                orderDao.updateUserCredits(loggedInUser.getUserId(), userCredits);
+            } catch (SQLException e) {
+                showErrorAlert("Database Error", "Failed to update user credits.");
+                e.printStackTrace();
+            }
+        }
+        return creditsEarned;
     }
 
     // nav methods

@@ -70,7 +70,7 @@ public class LogInController {
         }
     }
 
-    // sisplay success alert
+    // display success alert
     private void showSuccessAlert(ActionEvent event, String firstname, String lastname) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Login Successful");
