@@ -101,4 +101,18 @@ public class UserDaoImpl implements UserDao {
             }
         }
     }
+    
+    @Override
+    public void upgradeToVIP(int userId) throws SQLException {
+        String sql = "UPDATE users SET isVIP = ? WHERE user_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, true); // isVIP to true
+            stmt.setInt(2, userId);
+
+            stmt.executeUpdate();
+        }
+    }
 }

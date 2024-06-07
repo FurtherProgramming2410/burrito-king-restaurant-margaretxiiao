@@ -100,4 +100,21 @@ public class OrderDaoImpl implements OrderDao {
             return orders;
         }
     }
+    
+    // upgrade to vip method
+    
+    @Override
+    public void upgradeToVIP(int userId, String email) throws SQLException {
+        String sql = "UPDATE users SET is_vip = ?, email = ? WHERE user_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, true); // set vip to true!
+            stmt.setString(2, email);
+            stmt.setInt(3, userId);
+
+            stmt.executeUpdate();
+        }
+    }
 }

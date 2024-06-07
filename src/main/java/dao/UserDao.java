@@ -9,4 +9,5 @@ public interface UserDao {
     boolean createUser(String username, String firstname, String lastname, String password) throws SQLException;
     boolean updateUser(String username, String updatedFirstname, String updatedLastname, String updatedPassword) throws SQLException;
     User getUserByUsername(String username) throws SQLException;
+    void upgradeToVIP(int userId) throws SQLException;
 }

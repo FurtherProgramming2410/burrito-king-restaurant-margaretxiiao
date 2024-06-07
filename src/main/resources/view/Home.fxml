@@ -63,11 +63,16 @@
                </font>
             </Label>
             <ListView fx:id="list_activeOrders" layoutX="57.0" layoutY="135.0" prefHeight="606.0" prefWidth="400.0" style="-fx-border-color: grey;" />
-            <Label layoutX="615.0" layoutY="99.0" prefHeight="36.0" prefWidth="178.0" text="Become VIP">
+            <Label fx:id="label_vipstatus" layoutX="481.0" layoutY="92.0" prefHeight="36.0" prefWidth="451.0" text="Become VIP">
                <font>
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
+            <Button fx:id="button_unlockvip" layoutX="615.0" layoutY="145.0" mnemonicParsing="false" onAction="#handleUnlockVIP" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Unlock VIP" textAlignment="CENTER">
+               <font>
+                  <Font name="Corbel Bold" size="18.0" />
+               </font>
+            </Button>
          </children>
       </AnchorPane>
    </children>

@@ -9,4 +9,5 @@ public interface OrderDao {
     int storeOrder(Order order) throws SQLException;
     boolean updateOrderStatus(int orderId, String status) throws SQLException;
 	List<Order> getActiveOrdersByUserId(int userId) throws SQLException;
+    void upgradeToVIP(int userId, String email) throws SQLException;
 }

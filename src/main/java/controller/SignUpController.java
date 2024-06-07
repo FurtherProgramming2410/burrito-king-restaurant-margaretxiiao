@@ -56,7 +56,7 @@ public class SignUpController {
                     boolean signUpSuccess = userDao.createUser(usernameText, firstNameText, lastNameText, passwordText);
                     if (signUpSuccess) {
                         showAlert(Alert.AlertType.INFORMATION, "Sign Up Successful", "Sign up successful! You can now log in.");
-                        SceneChanger.changeScene(event, "/view/Main.fxml", "Log in!", 700, 500);
+                        SceneChanger.changeScene(event, "/view/SignIn.fxml", "Log in!", 700, 500);
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Sign Up Error", "Failed to sign up. Please try again.");
                     }
