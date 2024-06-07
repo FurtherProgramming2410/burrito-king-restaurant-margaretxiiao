@@ -8,4 +8,5 @@ public interface OrderDao {
     List<Order> getOrdersByUserId(int userId) throws SQLException;
     int storeOrder(Order order) throws SQLException;
     boolean updateOrderStatus(int orderId, String status) throws SQLException;
+	List<Order> getActiveOrdersByUserId(int userId) throws SQLException;
 }

@@ -2,11 +2,11 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.text.Font?>
 
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="795.0" prefWidth="1159.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoggedInController">
@@ -57,18 +57,12 @@
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
-            <TilePane layoutX="490.0" layoutY="85.0" prefHeight="275.0" prefWidth="378.0" />
-            <TilePane layoutX="486.0" layoutY="452.0" prefHeight="281.0" prefWidth="387.0" />
-            <Label fx:id="label_welcome1" layoutX="490.0" layoutY="36.0" prefHeight="36.0" prefWidth="178.0" text="Active Orders">
+            <Label layoutX="490.0" layoutY="36.0" prefHeight="36.0" prefWidth="178.0" text="Active Orders">
                <font>
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
-            <Label fx:id="label_welcome11" layoutX="463.0" layoutY="409.0" prefHeight="36.0" prefWidth="194.0" text="Order Summary">
-               <font>
-                  <Font name="Corbel Bold" size="26.0" />
-               </font>
-            </Label>
+            <ListView fx:id="list_activeOrders" layoutX="490.0" layoutY="85.0" prefHeight="666.0" prefWidth="400.0" style="-fx-border-color: grey;" />
          </children>
       </AnchorPane>
    </children>

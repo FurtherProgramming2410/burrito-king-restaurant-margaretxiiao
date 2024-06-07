@@ -66,7 +66,7 @@ public class OrderHistoryController {
 
         column_orderNumber.setCellValueFactory(new PropertyValueFactory<>("id"));
         column_orderTime.setCellValueFactory(new PropertyValueFactory<>("formattedOrderTime"));
-        column_totalPrice.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
+        column_totalPrice.setCellValueFactory(new PropertyValueFactory<>("formattedTotalPrice"));
         column_status.setCellValueFactory(new PropertyValueFactory<>("orderStatus"));
 
         loadOrderHistory();
@@ -129,7 +129,7 @@ public class OrderHistoryController {
         if (selectedOrderForCollection != null && "placed".equals(selectedOrderForCollection.getOrderStatus())) {
             showCollectOrderDialog();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Invalid Order", "You can only collect orders that are placed and not already collected or cancelled.");
+            showAlert(Alert.AlertType.ERROR, "Invalid Selection", "You can only collect orders that are placed and not already collected or cancelled.");
         }
     }
 
@@ -224,9 +224,15 @@ public class OrderHistoryController {
                 }
             });
         } else {
-            showAlert(Alert.AlertType.ERROR, "Invalid Order", "You can only cancel orders that are not already collected.");
+            showAlert(Alert.AlertType.ERROR, "Invalid Selection", "You can only cancel orders that are not already collected.");
         }
     }
+    
+    @FXML
+    private void handleExportOrders(ActionEvent event) {
+    	//getting ths ready for export to csv later 
+    }
+    
 
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);

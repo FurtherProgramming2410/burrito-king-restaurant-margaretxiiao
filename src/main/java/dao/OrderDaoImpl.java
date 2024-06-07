@@ -1,4 +1,3 @@
-
 package dao;
 
 import java.sql.*;
@@ -18,17 +17,17 @@ public class OrderDaoImpl implements OrderDao {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Order order = new Order(
+                        rs.getInt("order_id"), // Assuming order_id is the primary key
                         rs.getInt("user_id"),
                         rs.getInt("burrito_qty"),
                         rs.getInt("fries_qty"),
                         rs.getInt("soda_qty"),
                         rs.getInt("meal_qty"),
                         rs.getDouble("total_price"),
-                        rs.getInt("preparation_time")
+                        rs.getInt("preparation_time"),
+                        rs.getString("order_status"),
+                        rs.getTimestamp("order_time")
                     );
-                    order.setId(rs.getInt("order_id"));
-                    order.setOrderTime(rs.getTimestamp("order_time"));
-                    order.setOrderStatus(rs.getString("order_status"));
                     orderHistory.add(order);
                 }
             }
@@ -72,6 +71,33 @@ public class OrderDaoImpl implements OrderDao {
             stmt.setString(1, status);
             stmt.setInt(2, orderId);
             return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public List<Order> getActiveOrdersByUserId(int userId) throws SQLException {
+        String sql = "SELECT * FROM orders WHERE user_id = ? AND order_status = 'placed'";
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            List<Order> orders = new ArrayList<>();
+            while (resultSet.next()) {
+                Order order = new Order(
+                        resultSet.getInt("order_id"),
+                        resultSet.getInt("user_id"),
+                        resultSet.getInt("burrito_qty"),
+                        resultSet.getInt("fries_qty"),
+                        resultSet.getInt("soda_qty"),
+                        resultSet.getInt("meal_qty"),
+                        resultSet.getDouble("total_price"),
+                        resultSet.getInt("preparation_time"),
+                        resultSet.getString("order_status"),
+                        resultSet.getTimestamp("order_time")
+                );
+                orders.add(order);
+            }
+            return orders;
         }
     }
 }

@@ -53,21 +53,34 @@
       </AnchorPane>
       <AnchorPane prefHeight="795.0" prefWidth="953.0">
          <children>
-            <Label layoutX="75.0" layoutY="59.0" prefHeight="36.0" prefWidth="178.0" text="All Orders">
+            <Label layoutX="415.0" layoutY="43.0" prefHeight="36.0" prefWidth="119.0" text="All Orders">
                <font>
                   <Font name="Corbel Bold" size="26.0" />
                </font>
             </Label>
-            <TableView fx:id="table_orders" layoutX="75.0" layoutY="100.0" prefHeight="600.0" prefWidth="800.0">
+            <TableView fx:id="table_orders" layoutX="174.0" layoutY="89.0" prefHeight="600.0" prefWidth="601.0">
                <columns>
-                  <TableColumn fx:id="column_orderNumber" prefWidth="100.0" text="Order Number" />
-                  <TableColumn fx:id="column_orderTime" prefWidth="200.0" text="Order Time" />
-                  <TableColumn fx:id="column_totalPrice" prefWidth="150.0" text="Total Price" />
-                  <TableColumn fx:id="column_status" prefWidth="150.0" text="Status" />
+                  <TableColumn fx:id="column_orderNumber" prefWidth="144.0" text="Order Number" />
+                  <TableColumn fx:id="column_orderTime" prefWidth="144.0" text="Order Time" />
+                  <TableColumn fx:id="column_totalPrice" prefWidth="139.0" text="Total Price" />
+                  <TableColumn fx:id="column_status" prefWidth="170.0" text="Status" />
                </columns>
             </TableView>
-            <Button layoutX="75.0" layoutY="710.0" mnemonicParsing="false" onAction="#handleCollectOrder" prefHeight="36.0" prefWidth="100.0" text="Collect" />
-            <Button layoutX="185.0" layoutY="710.0" mnemonicParsing="false" onAction="#handleCancelOrder" prefHeight="36.0" prefWidth="100.0" text="Cancel" />
+            <Button layoutX="75.0" layoutY="716.0" mnemonicParsing="false" onAction="#handleCollectOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Collect" textAlignment="CENTER">
+               <font>
+                  <Font name="Corbel Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button layoutX="241.0" layoutY="716.0" mnemonicParsing="false" onAction="#handleCancelOrder" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: FFA28E; -fx-cursor: hand;" text="Cancel" textAlignment="CENTER">
+               <font>
+                  <Font name="Corbel Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button layoutX="726.0" layoutY="716.0" mnemonicParsing="false" onAction="#handleExportOrders" prefHeight="36.0" prefWidth="149.0" style="-fx-background-color: ffdf7c; -fx-cursor: hand;" text="Export Orders" textAlignment="CENTER">
+               <font>
+                  <Font name="Corbel Bold" size="18.0" />
+               </font>
+            </Button>
          </children>
       </AnchorPane>
    </children>

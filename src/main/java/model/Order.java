@@ -13,8 +13,24 @@ public class Order {
     private double totalPrice;
     private int preparationTime;
     private Timestamp orderTime;
-    private String orderStatus; 
+    private String orderStatus;
 
+    // order constructor
+    
+    public Order(int id, int userId, int burritoQty, int friesQty, int sodaQty, int mealQty, double totalPrice, int preparationTime, String orderStatus, Timestamp orderTime) {
+        this.id = id;
+        this.userId = userId;
+        this.burritoQty = burritoQty;
+        this.friesQty = friesQty;
+        this.sodaQty = sodaQty;
+        this.mealQty = mealQty;
+        this.totalPrice = totalPrice;
+        this.preparationTime = preparationTime;
+        this.orderStatus = orderStatus;
+        this.orderTime = orderTime;
+    }
+
+    // order constructor for NewOrderController
     public Order(int userId, int burritoQty, int friesQty, int sodaQty, int mealQty, double totalPrice, int preparationTime) {
         this.userId = userId;
         this.burritoQty = burritoQty;
@@ -23,12 +39,11 @@ public class Order {
         this.mealQty = mealQty;
         this.totalPrice = totalPrice;
         this.preparationTime = preparationTime;
-        this.orderTime = new Timestamp(System.currentTimeMillis());
-        this.orderStatus = "placed";  // default
+        this.orderTime = new Timestamp(System.currentTimeMillis()); // set current time
+        this.orderStatus = "placed"; // Default status
     }
 
     // Getters and setters
-
     public int getId() {
         return id;
     }
@@ -100,11 +115,6 @@ public class Order {
     public void setOrderTime(Timestamp orderTime) {
         this.orderTime = orderTime;
     }
-    
-    public String getFormattedOrderTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
-        return sdf.format(orderTime);
-    }
 
     public String getOrderStatus() {
         return orderStatus;
@@ -112,5 +122,31 @@ public class Order {
 
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public String getOrderedItems() {
+        StringBuilder items = new StringBuilder();
+        if (burritoQty > 0) items.append(burritoQty).append(" Burrito(s), ");
+        if (friesQty > 0) items.append(friesQty).append(" Fries, ");
+        if (sodaQty > 0) items.append(sodaQty).append(" Soda(s), ");
+        if (mealQty > 0) items.append(mealQty).append(" Meal(s)");
+        
+        // remove comma and space
+        if (items.length() > 0 && items.charAt(items.length() - 2) == ',') {
+            items.setLength(items.length() - 2);
+        }
+        
+        return items.toString();
+    }
+    
+    // format order time
+    public String getFormattedOrderTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+        return sdf.format(orderTime);
+    }
+    
+    // format order price
+    public String getFormattedTotalPrice() {
+        return String.format("$%.2f", totalPrice);
     }
 }
